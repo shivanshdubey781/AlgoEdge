@@ -1740,7 +1740,7 @@ def contact():
     return render_template("contact-us.html")
 
 @app.route("/admin")
-def strategies():
+def admin():
     return render_template("admin.tejashwitech.com")
 
 

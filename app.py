@@ -1711,6 +1711,22 @@ def stop_signal_gen_endpoint():
 # FRONTEND ROUTES
 # -----------------------
 
+
+
+
+
+
+#==============Edited=======
+# -----------------------
+# FRONTEND ROUTES
+# -----------------------
+
+# 🔹 Onboarding / Main website
+# -----------------------
+# FRONTEND ROUTES
+# -----------------------
+
+# 🔹 Onboarding / Main website
 @app.route("/")
 def main_home():
     return render_template("main.html")
@@ -1719,6 +1735,8 @@ def main_home():
 def home():
     return render_template("main.html")
 
+
+# 🔹 Customer (Client) Login & Dashboard
 @app.route("/login")
 def login():
     return render_template("client-login.html")
@@ -1727,6 +1745,14 @@ def login():
 def dashboard():
     return render_template("client-dashboard.html")
 
+
+# 🔹 Admin Login / Panel (SAFE PATH)
+@app.route("/admin/login")
+def admin_login_page():
+    return render_template("index.html")
+
+
+# 🔹 Static Pages
 @app.route("/about")
 def about():
     return render_template("about-us.html")
@@ -1738,6 +1764,40 @@ def strategies():
 @app.route("/contact")
 def contact():
     return render_template("contact-us.html")
+
+
+
+
+
+#==============Edited=======
+
+# @app.route("/")
+# def main_home():
+#     return render_template("main.html")
+
+# @app.route("/home")
+# def home():
+#     return render_template("main.html")
+
+# @app.route("/login")
+# def login():
+#     return render_template("client-login.html")
+
+# @app.route("/dashboard")
+# def dashboard():
+#     return render_template("client-dashboard.html")
+
+# @app.route("/about")
+# def about():
+#     return render_template("about-us.html")
+
+# @app.route("/strategies")
+# def strategies():
+#     return render_template("strategies.html")
+
+# @app.route("/contact")
+# def contact():
+#     return render_template("contact-us.html")
 
 
 if __name__ == "__main__":

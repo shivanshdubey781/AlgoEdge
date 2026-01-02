@@ -1713,15 +1713,15 @@ def stop_signal_gen_endpoint():
 
 @app.route("/")
 def main_home():
-    return render_template("main.html")
+    return render_template("alogotrade.tejashwitech.com")
 
 @app.route("/home")
 def home():
-    return render_template("main.html")
+    return render_template("alogotrade.tejashwitech.com")
 
 @app.route("/login")
 def login():
-    return render_template("client-login.html")
+    return render_template("customer.tejashwitech.com")
 
 @app.route("/dashboard")
 def dashboard():
@@ -1738,6 +1738,10 @@ def strategies():
 @app.route("/contact")
 def contact():
     return render_template("contact-us.html")
+
+@app.route("/admin")
+def strategies():
+    return render_template("admin.tejashwitech.com")
 
 
 if __name__ == "__main__":

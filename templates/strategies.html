@@ -1,0 +1,367 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Strategies</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Icon Font Stylesheet -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.05) 0, transparent 50%), 
+                        radial-gradient(at 50% 0%, rgba(139, 92, 246, 0.05) 0, transparent 50%), 
+                        radial-gradient(at 100% 0%, rgba(249, 115, 22, 0.05) 0, transparent 50%);
+            background-color: #fcfdff;
+            min-height: 100vh;
+        }
+
+        /* Glassmorphism Effect + Light Interaction */
+        .glass-card {
+            position: relative;
+            background: rgba(255, 255, 255, 0.7);
+            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 15px 35px 0 rgba(31, 38, 135, 0.05);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease;
+            overflow: hidden;
+        }
+
+        /* The Light Effect Layer */
+        .glass-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            background: radial-gradient(
+                800px circle at var(--mouse-x) var(--mouse-y), 
+                rgba(255, 255, 255, 0.3), 
+                transparent 40%
+            );
+            opacity: 0;
+            transition: opacity 0.5s;
+            pointer-events: none;
+        }
+
+        .glass-card:hover::before {
+            opacity: 1;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-8px);
+            background: rgba(255, 255, 255, 0.85);
+            box-shadow: 0 20px 45px 0 rgba(31, 38, 135, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        /* Ensure content stays above the light effect */
+        .card-content {
+            position: relative;
+            z-index: 10;
+        }
+
+        .nav-glass {
+            background: rgba(255, 255, 255, 0.8);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+        }
+
+        .stat-icon {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+            font-size: 14px;
+        }
+
+        /* Animations */
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+    </style>
+    <style>
+  .nav-link {
+    position: relative;
+    padding-bottom: 4px;
+    transition: color 0.2s ease;
+  }
+
+  .nav-link::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 0%;
+    height: 2px;
+    background-color: #2563eb; /* blue-600 */
+    transition: width 0.25s ease;
+  }
+
+  .nav-link:hover::after {
+    width: 100%;
+  }
+
+  .nav-active {
+    color: #2563eb;
+    font-weight: 600;
+  }
+
+  .nav-active::after {
+    width: 100%;
+  }
+</style>
+
+</head>
+
+<body class="text-slate-800">
+
+    <!-- Navigation -->
+    <nav class="nav-glass flex items-center justify-between px-6 py-4 lg:px-20 sticky top-0 z-50">
+        <a href="/" class="flex items-center gap-2 text-2xl font-bold italic">
+            <span class="text-blue-600">Algo</span><span class="text-slate-800">Edge</span>
+        </a>
+
+       <div class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
+    <a href="main.html" class="nav-link">Home</a>
+    <a href="about-us.html" class="nav-link">About Us</a>
+    <a href="strategies.html" class="nav-link">Strategies</a>
+    <a href="contact-us.html" class="nav-link">Contact Us</a>
+    <a href="index.html"
+       class="text-red-500 hover:text-red-600 font-bold">
+       Admin
+    </a>
+</div>
+
+
+        <a href="client-login.html" class="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-6 rounded-lg transition shadow-md">
+            Login
+        </a>
+    </nav>
+
+   
+    <!-- Header Section -->
+    <header class="pt-16 pb-8 text-center px-4">
+        <span class="inline-block py-1 px-4 rounded-full bg-blue-50 text-blue-600 text-xs font-bold tracking-widest uppercase mb-4">Trading Models</span>
+        <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight">Our Premium <span class="text-blue-600">Strategies</span></h1>
+        <p class="mt-4 text-slate-500 max-w-2xl mx-auto text-lg">Choose from our verified algorithmic models designed for consistency and risk management.</p>
+    </header>
+
+    <!-- Strategies Grid -->
+    <div class="max-w-7xl mx-auto px-6 lg:px-20 py-12">
+        <div id="cards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 group">
+            
+            <!-- ALPHA Strategy -->
+            <div class="glass-card rounded-3xl p-8 flex flex-col h-full fade-in-up delay-1">
+                <div class="card-content flex flex-col h-full">
+                    <div class="mt-10 w-full py-4 bg-white-10000 hover:bg-pink-500 text-white rounded-3xl font-bold transition shadow-lg shadow-slate-500">
+
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="p-3 bg-blue-50 rounded-2xl">
+                            <i class="fas fa-chart-line text-blue-600 text-2xl"></i>
+                        </div>
+                        <span class="text-[10px] font-bold bg-green-100 text-green-700 px-3 py-1 rounded-full uppercase tracking-tighter">Option Buy</span>
+                    </div>
+
+                    <h3 class="text-2xl font-bold text-slate-900 mb-2 text-center"><i class="fas fa-chart-line">ALPHA</i></h3>
+                    <p class="text-slate-500 text-sm mb-6 pb-6 border-b border-slate-100 text-center">Nifty, Banknifty option buy strategy for consistent weekly growth.</p>
+                    
+                    <div class="space-y-5 flex-grow">
+                        <div class="flex items-start gap-4">
+                            <div class="stat-icon"><i class="fas fa-bullseye"></i></div>
+                            <div>
+                                <p class="text-xs text-slate-400 font-medium uppercase">Weekly Target</p>
+                                <p class="text-sm font-semibold text-slate-700">40-50 Points (per lot)</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="stat-icon"><i class="fas fa-shield-alt"></i></div>
+                            <div>
+                                <p class="text-xs text-slate-400 font-medium uppercase">Draw Down</p>
+                                <p class="text-sm font-semibold text-slate-700">30-40 Points per lot</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="stat-icon"><i class="fas fa-wallet"></i></div>
+                            <div>
+                                <p class="text-xs text-slate-400 font-medium uppercase">Capital</p>
+                                <p class="text-sm font-semibold text-slate-700">₹1,00,000 Min</p>
+                            </div>
+                        </div>
+                    </div>
+
+                   
+                </div>
+                </div>
+            </div>
+
+            <!-- ZEBRA Strategy -->
+            <div class="glass-card rounded-3xl p-8 flex flex-col h-full fade-in-up delay-2">
+                <div class="card-content flex flex-col h-full">
+                    <div class="mt-10 w-full py-4 bg-white-10000 hover:bg-pink-500 text-white rounded-3xl font-bold transition shadow-lg shadow-slate-500">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="p-3 bg-indigo-50 rounded-2xl">
+                            <i class="fas fa-layer-group text-indigo-600 text-2xl"></i>
+                        </div>
+                        <span class="text-[10px] font-bold bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full uppercase tracking-tighter">Fut + Options</span>
+                    </div>
+
+                    <h3 class="text-2xl font-bold text-slate-900 mb-2 text-center"><i class="fas fa-layer-group">ZEBRA</i></h3>
+                    <p class="text-slate-500 text-sm mb-6 pb-6 border-b border-slate-100 text-center">Fut with options hedging for stabilized market exposure.</p>
+                    
+                    <div class="space-y-5 flex-grow">
+                        <div class="flex items-start gap-4">
+                            <div class="stat-icon"><i class="fas fa-bullseye"></i></div>
+                            <div>
+                                <p class="text-xs text-slate-400 font-medium uppercase">Weekly Target</p>
+                                <p class="text-sm font-semibold text-slate-700">100-150 Points per week</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="stat-icon"><i class="fas fa-shield-alt"></i></div>
+                            <div>
+                                <p class="text-xs text-slate-400 font-medium uppercase">Draw Down</p>
+                                <p class="text-sm font-semibold text-slate-700">60-80 Points per lot</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="stat-icon"><i class="fas fa-wallet"></i></div>
+                            <div>
+                                <p class="text-xs text-slate-400 font-medium uppercase">Capital</p>
+                                <p class="text-sm font-semibold text-slate-700">₹5L - ₹10L</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    
+                </div>
+                </div>
+            </div>
+
+            <!-- TULIP Strategy -->
+            <div class="glass-card rounded-3xl p-8 flex flex-col h-full fade-in-up delay-3">
+                <div class="card-content flex flex-col h-full">
+                    <div class="mt-10 w-full py-4 bg-white-10000 hover:bg-pink-500 text-white rounded-3xl font-bold transition shadow-lg shadow-slate-500">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="p-3 bg-purple-50 rounded-2xl">
+                            <i class="fas fa-pen-nib text-purple-600 text-2xl"></i>
+                        </div>
+                        <span class="text-[10px] font-bold bg-purple-100 text-purple-700 px-3 py-1 rounded-full uppercase tracking-tighter">Option Writing</span>
+                    </div>
+
+                    <h3 class="text-2xl font-bold text-slate-900 mb-2 text-center"><i class="fas fa-pen-nib">TULIP</i></h3>
+                    <p class="text-slate-500 text-sm mb-6 pb-6 border-b border-slate-100 text-center">Conservative multileg option writing for wealth preservation.</p>
+                    
+                    <div class="space-y-5 flex-grow">
+                        <div class="flex items-start gap-4">
+                            <div class="stat-icon"><i class="fas fa-bullseye"></i></div>
+                            <div>
+                                <p class="text-xs text-slate-400 font-medium uppercase">Monthly ROI Target</p>
+                                <p class="text-sm font-semibold text-slate-700">~2% of Capital</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="stat-icon"><i class="fas fa-shield-alt"></i></div>
+                            <div>
+                                <p class="text-xs text-slate-400 font-medium uppercase">Draw Down</p>
+                                <p class="text-sm font-semibold text-slate-700">Conservative 0.5% - 0.75%</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="stat-icon"><i class="fas fa-wallet"></i></div>
+                            <div>
+                                <p class="text-xs text-slate-400 font-medium uppercase">Capital Required</p>
+                                <p class="text-sm font-semibold text-slate-700">₹10,00,000+</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-100 mt-20 py-12 px-6 lg:px-20">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
+            <div class="col-span-1 md:col-span-2">
+                <div class="flex items-center gap-2 text-xl font-bold italic mb-4">
+                    <span class="text-blue-600">Algo</span><span class="text-slate-800">Edge</span>
+                </div>
+                <p class="text-slate-500 text-sm max-w-sm">
+                    AlgoEdge is a trusted algorithmic trading provider focusing on high-precision data models.
+                </p>
+            </div>
+            <div>
+                <h4 class="font-bold text-slate-900 mb-4 text-sm">Quick Links</h4>
+                <ul class="text-slate-500 text-xs space-y-2">
+                    <li><a href="main.html" class="hover:text-blue-600">Home</a></li>
+                    <li><a href="about-us.html" class="hover:text-blue-600">About Us</a></li>
+                    <li><a href="contact-us.html" class="hover:text-blue-600">Contact</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold text-slate-900 mb-4 text-sm">Policy</h4>
+                <ul class="text-slate-500 text-xs space-y-2">
+                    <li><a href="#" class="hover:text-blue-600">Disclaimers</a></li>
+                    <li><a href="#" class="hover:text-blue-600">Risk Policy</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto border-t border-slate-50 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p class="text-xs text-slate-400">© <script>document.write(new Date().getFullYear());</script> AlgoEdge. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Mouse Tracking Script for Spotlight Effect -->
+    <script>
+        const cardsElement = document.getElementById("cards");
+        
+        cardsElement.onmousemove = e => {
+            for (const card of document.getElementsByClassName("glass-card")) {
+                const rect = card.getBoundingClientRect(),
+                x = e.clientX - rect.left,
+                y = e.clientY - rect.top;
+
+                card.style.setProperty("--mouse-x", `${x}px`);
+                card.style.setProperty("--mouse-y", `${y}px`);
+            }
+        }
+    </script>
+    <script>
+  const currentPath = window.location.pathname.split("/").pop();
+
+  document.querySelectorAll(".nav-link").forEach(link => {
+    const linkPath = link.getAttribute("href");
+
+    if (linkPath === currentPath) {
+      link.classList.add("active");
+    }
+  });
+</script>
+
+</body>
+</html>

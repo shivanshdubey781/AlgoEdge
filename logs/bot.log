@@ -1,0 +1,30 @@
+[2026-01-02 15:44:18] [INFO] Loaded 6 users from DB
+[2026-01-02 15:44:19] [SUCCESS] Login success for Admin H202296
+[2026-01-02 15:44:19] [SUCCESS] Signal Generator started
+[2026-01-02 15:44:19] [INFO] Loading/Refreshing Scrip Master...
+[2026-01-02 15:44:21] [INFO] Fetched scrip master from remote (attempt 1).
+[2026-01-02 15:44:26] [INFO] Loaded scrip master into DataFrame (168635 rows).
+[2026-01-02 15:44:26] [SUCCESS] Signal Generator Started
+[2026-01-02 15:44:27] [INFO] Latest RSI from MongoDB: 70.92558312133616
+[2026-01-02 15:44:27] [INFO] RSI=70.93  ASTRO=N/A  SIGNAL=NONE
+[2026-01-02 15:44:32] [INFO] Latest RSI from MongoDB: 70.92558312133616
+[2026-01-02 15:44:32] [INFO] RSI=70.93  ASTRO=N/A  SIGNAL=NONE
+[2026-01-02 16:01:50] [INFO] Loaded 6 users from DB
+[2026-01-02 16:01:50] [SUCCESS] Login success for Admin H202296
+[2026-01-02 16:01:50] [SUCCESS] Signal Generator started
+[2026-01-02 16:01:50] [INFO] Loading/Refreshing Scrip Master...
+[2026-01-02 16:02:06] [INFO] Fetched scrip master from remote (attempt 1).
+[2026-01-02 16:02:13] [SUCCESS] Login success for Admin H202296
+[2026-01-02 16:02:13] [INFO] Admin admin logged in (token issued)
+[2026-01-02 16:02:13] [INFO] Loaded scrip master into DataFrame (168635 rows).
+[2026-01-02 16:02:13] [SUCCESS] Signal Generator Started
+[2026-01-02 16:02:14] [INFO] Latest RSI from MongoDB: 70.92558312133616
+[2026-01-02 16:02:14] [INFO] RSI=70.93  ASTRO=N/A  SIGNAL=NONE
+[2026-01-02 16:02:19] [INFO] Latest RSI from MongoDB: 70.92558312133616
+[2026-01-02 16:02:19] [INFO] RSI=70.93  ASTRO=N/A  SIGNAL=NONE
+[2026-01-02 16:02:24] [INFO] Latest RSI from MongoDB: 70.92558312133616
+[2026-01-02 16:02:24] [INFO] RSI=70.93  ASTRO=N/A  SIGNAL=NONE
+[2026-01-02 16:02:29] [INFO] Latest RSI from MongoDB: 70.92558312133616
+[2026-01-02 16:02:29] [INFO] RSI=70.93  ASTRO=N/A  SIGNAL=NONE
+[2026-01-02 16:02:34] [INFO] Latest RSI from MongoDB: 70.92558312133616
+[2026-01-02 16:02:34] [INFO] RSI=70.93  ASTRO=N/A  SIGNAL=NONE

@@ -1,0 +1,168 @@
+============================================
+ BOT CUSTOMIZATION INSTRUCTIONS (READ FIRST)
+============================================
+
+Use this guide to change SL, TP, RSI values, Strike Step, etc.
+
+Each section clearly tells:
+- WHICH FUNCTION
+- WHICH LINE NUMBER
+- WHAT TO CHANGE
+- WHY IT AFFECTS TRADES
+
+
+=====================================================
+1️⃣  CHANGE TARGET (TP) & STOPLOSS (SL)
+=====================================================
+
+➡ LOCATION IN CODE:
+Inside function: monitor_trade()
+Go to approximately: LINE 840 – LINE 860
+
+➡ EXACT LINES TO EDIT:
+
+For CE:
+    target_price = entry_ltp + TARGET_POINTS
+    sl_price     = entry_ltp - STOPLOSS_POINTS
+
+For PE:
+    target_price = entry_ltp - TARGET_POINTS
+    sl_price     = entry_ltp + STOPLOSS_POINTS
+
+➡ WHAT TO CHANGE:
+- Change TARGET_POINTS to adjust TP
+- Change STOPLOSS_POINTS to adjust SL
+
+Example:
+    TARGET_POINTS = 30
+    STOPLOSS_POINTS = 10
+
+
+=====================================================
+2️⃣  CHANGE RSI LEVELS (RSI → CE / PE)
+=====================================================
+
+➡ LOCATION IN CODE:
+Inside function: generate_signal()
+Go to approximately: LINE 780 – LINE 820
+
+➡ EXACT LINES TO EDIT:
+
+For CE signal:
+    if rsi <= 30 and astro == "upside":
+        return "BUY CE"
+
+For PE signal:
+    if rsi >= 70 and astro == "downside":
+        return "BUY PE"
+
+➡ WHAT TO CHANGE:
+- Change 30 for CE trigger
+- Change 70 for PE trigger
+
+Example:
+    RSI_CE = 25
+    RSI_PE = 80
+
+
+=====================================================
+3️⃣  CHANGE STRIKE STEP (ATM CE/PE STRIKE JUMP)
+=====================================================
+
+➡ LOCATION IN CODE:
+Global variable section (top of file)
+Go to approximately: LINE 110 – LINE 130
+
+➡ EXACT LINE:
+
+    STRIKE_STEP = 50
+
+➡ WHAT TO CHANGE:
+Change 50 to 100 or 25 depending on your requirement.
+
+Example:
+    STRIKE_STEP = 100
+
+
+=====================================================
+4️⃣  CHANGE LOT MULTIPLIER FOR USERS
+=====================================================
+
+➡ LOCATION IN CODE:
+Inside function: start_user()
+Go to approximately: LINE 650 – LINE 700
+
+➡ EXACT LINE:
+
+    qty = lot_size * u.get("lot_multiplier", 1)
+
+➡ WHAT TO CHANGE:
+Change lot_multiplier for each user in database.
+
+
+=====================================================
+5️⃣  CHANGE BOT SIGNAL SCAN SPEED (EVERY X SECONDS)
+=====================================================
+
+➡ LOCATION IN CODE:
+Inside function: signal_generator()
+Go to approximately: LINE 900 – LINE 940
+
+➡ EXACT LINE:
+
+    time.sleep(3)
+
+➡ WHAT TO CHANGE:
+Change the value 3 to any number of seconds.
+
+
+=====================================================
+6️⃣  CHANGE TRADE MONITORING SPEED (SL/TP CHECK RATE)
+=====================================================
+
+➡ LOCATION IN CODE:
+Inside function: monitor_trade()
+Go to approximately: LINE 870 – LINE 890
+
+➡ EXACT LINE:
+
+    time.sleep(3)
+
+➡ WHAT TO CHANGE:
+Set lower for faster exit, higher to reduce API hits.
+
+
+=====================================================
+7️⃣  CHANGE NIFTY STRIKE RESOLVER (NIFTY ONLY)
+=====================================================
+
+➡ LOCATION IN CODE:
+Inside function: find_option_symbol()
+Go to approximately: LINE 320 – LINE 390
+
+➡ BEHAVIOR:
+This ensures only NIFTY CE/PE are chosen, not FINNIFTY.
+
+If you ever want BANKNIFTY, this is the function to edit.
+
+
+=====================================================
+8️⃣  CHANGE STOP WHEN ORDER REJECTED
+=====================================================
+
+➡ LOCATION IN CODE:
+Inside function: signal_generator()
+Go to approximately: LINE 1030 – LINE 1060
+
+➡ EXACT LOGIC:
+If order fails:
+    failed_users.add(cid)
+    will NOT retry until next signal
+
+➡ WHAT TO CHANGE:
+Normally do NOT change; this prevents repeated trades.
+
+
+=====================================================
+END OF DOCUMENTATION
+=====================================================

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>AlgoEdge | Contact Us</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+<style>
+body{font-family:'Inter',sans-serif;background:#fcfdff}
+.nav-link{position:relative;padding-bottom:4px}
+.nav-link::after{content:"";position:absolute;left:0;bottom:0;width:0;height:2px;background:#2563eb;transition:.25s}
+.nav-link:hover::after,.nav-active::after{width:100%}
+.nav-active{color:#2563eb;font-weight:600}
+</style>
+</head>
+
+<body class="text-slate-800">
+
+<!-- NAV -->
+<nav class="bg-white/80 backdrop-blur border-b px-6 py-4 lg:px-20 sticky top-0 z-50 flex justify-between">
+  <div class="text-2xl font-bold italic"><span class="text-blue-600">Algo</span>Edge</div>
+  <div class="hidden md:flex gap-8 text-sm">
+    <a href="main.html" class="nav-link">Home</a>
+    <a href="about-us.html" class="nav-link">About Us</a>
+    <a href="strategies.html" class="nav-link">Strategies</a>
+    <a href="contact-us.html" class="nav-link nav-active">Contact Us</a>
+    <a href="https://algoedge.co.in/admin" class="text-red-500 font-bold">Admin</a>
+  </div>
+  <a href="https://algoedge.co.in/" class="bg-orange-500 text-white px-6 py-2 rounded-lg">Login</a>
+</nav>
+
+<!-- MAIN -->
+<main class="max-w-6xl mx-auto px-6 py-20">
+
+<div class="grid md:grid-cols-2 gap-10 bg-white rounded-[2.5rem] shadow overflow-hidden">
+
+<!-- LEFT -->
+<div class="bg-gradient-to-br from-indigo-600 to-blue-500 p-12 text-white">
+<h2 class="text-3xl font-bold mb-4">Contact Information</h2>
+<p class="mb-10 text-blue-100">We’ll respond within 24 hours.</p>
+<p class="mb-4">📞 +91 92115 19286</p>
+<p class="mb-4">✉️ info@crestview.co.in</p>
+<p>📍 New Delhi, India</p>
+</div>
+
+<!-- FORM -->
+<div class="p-12">
+<form id="contact-form" class="space-y-4">
+
+<!-- REQUIRED FOR TEMPLATE -->
+<input type="hidden" name="query" id="query">
+<input type="hidden" name="title" value="Website Contact Form">
+
+<input name="name" placeholder="Your Name" required class="w-full p-3 border rounded-lg">
+<select name="client_type" required class="w-full p-3 border rounded-lg" title="Select Client Type">
+<option value="" disabled selected>Select Type</option>
+<option>Individual</option>
+<option>Corporate</option>
+</select>
+
+<input name="phone" placeholder="Phone" required class="w-full p-3 border rounded-lg">
+<input name="email" type="email" placeholder="Email" required class="w-full p-3 border rounded-lg">
+
+<div>
+<p class="font-semibold mb-2">Select your query:</p>
+<label class="mr-4"><input type="checkbox" value="Customize Algo Development" class="q"> Customize Algo</label>
+<label class="mr-4"><input type="checkbox" value="Alpha Strategy" class="q"> Alpha</label>
+<label class="mr-4"><input type="checkbox" value="Tulip Strategy" class="q"> Tulip</label>
+<label><input type="checkbox" value="Zebra Strategy" class="q"> Zebra</label>
+</div>
+
+<textarea name="message" rows="4" placeholder="Message" required class="w-full p-3 border rounded-lg"></textarea>
+
+<button id="submitBtn" type="submit" class="bg-blue-600 text-white px-6 py-3 rounded-lg w-full">
+Send Message
+</button>
+
+</form>
+</div>
+</div>
+</main>
+
+<footer class="text-center py-10 text-slate-400 text-sm">
+© 2024 AlgoEdge. All Rights Reserved.
+</footer>
+
+<script>
+emailjs.init("Smtprn5qswsbuMBic");
+
+document.getElementById("contact-form").addEventListener("submit",function(e){
+e.preventDefault();
+
+const queries=[];
+document.querySelectorAll(".q:checked").forEach(q=>queries.push(q.value));
+document.getElementById("query").value=queries.join(", ");
+
+const btn=document.getElementById("submitBtn");
+btn.innerText="Sending...";
+btn.disabled=true;
+
+emailjs.sendForm(
+"service_c703jb9",
+"template_acb2lrr",
+this
+).then(()=>{
+btn.innerText="✅ Message Sent";
+this.reset();
+setTimeout(()=>{btn.innerText="Send Message";btn.disabled=false;},3000);
+}).catch(err=>{
+console.error(err);
+btn.innerText="❌ Failed. Try Again";
+btn.disabled=false;
+});
+});
+</script>
+
+</body>
+</html>

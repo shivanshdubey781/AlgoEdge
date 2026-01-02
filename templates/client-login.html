@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Login - Algo-Trading</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: url('https://images.pexels.com/photos/302743/pexels-photo-302743.jpeg')
+                        no-repeat center center / cover;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.12);
+            -webkit-backdrop-filter: blur(14px);
+            backdrop-filter: blur(14px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+        }
+
+        .alert {
+            animation: slideDown 0.4s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+
+<body class="flex items-center justify-center min-h-screen bg-black bg-opacity-50">
+
+    <div class="glass w-full max-w-md p-8 shadow-2xl text-white fade-in">
+
+        <h2 class="text-3xl font-semibold text-center mb-6">Algo-Trading</h2>
+        <p class="text-center text-gray-200 mb-8 text-sm">
+            Sign in to your secure trading portal
+        </p>
+
+        <div id="alert-box" class="hidden p-3 mb-4 rounded bg-red-600 bg-opacity-80 text-white text-center alert"></div>
+
+        <form id="client-form" class="space-y-5">
+            <input type="text" id="login-id" placeholder="User Login ID"
+                class="w-full p-3 bg-white bg-opacity-20 text-white rounded-lg outline-none focus:ring-2 focus:ring-indigo-400"
+                required>
+
+            <input type="password" id="login-password" placeholder="User Login Password"
+                class="w-full p-3 bg-white bg-opacity-20 text-white rounded-lg outline-none focus:ring-2 focus:ring-indigo-400"
+                required>
+
+            <button type="submit"
+                class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 transition rounded-lg font-semibold shadow-lg">
+                Sign In
+            </button>
+        </form>
+
+        
+    </div>
+
+<script>
+const API_BASE_URL = "http://127.0.0.1:9000";
+
+function showAlert(msg) {
+    const alert = document.getElementById("alert-box");
+    alert.innerText = "⚠ " + msg;
+    alert.classList.remove("hidden");
+}
+
+async function pingServer() {
+    try {
+        const res = await fetch(`${API_BASE_URL}/health`);
+        const data = await res.json();
+        if (data.status === "ok") showAlert("API is ONLINE ✓");
+        else showAlert("API error: " + data.detail);
+    } catch {
+        showAlert("Cannot reach API server");
+    }
+}
+
+document.getElementById("client-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const payload = {
+        user_login_id: document.getElementById("login-id").value.trim(),
+        user_login_password: document.getElementById("login-password").value.trim()
+    };
+
+    try {
+        const res = await fetch(`${API_BASE_URL}/client_login`, {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(payload),
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+            localStorage.setItem("client_token", data.token);
+            localStorage.setItem("client_id", data.client_id);
+            window.location.href = "client-dashboard.html";
+        } else {
+            showAlert(data.message || "Login failed");
+        }
+
+    } catch (err) {
+        showAlert("Unable to connect to server (API offline)");
+    }
+});
+</script>
+
+</body>
+</html>

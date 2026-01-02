@@ -1,0 +1,15 @@
+flask
+flask-cors
+pyotp
+pandas
+requests
+logzero
+numpy
+pymongo
+dnspython
+bcrypt
+PyJWT
+python-dotenv
+smartapi-python
+websocket-client
+APScheduler

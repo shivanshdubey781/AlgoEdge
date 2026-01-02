@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>About Us | AlgoEdge</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <!-- Fonts & Tailwind -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+
+    .nav-link {
+      position: relative;
+      padding-bottom: 4px;
+      transition: color 0.2s ease;
+    }
+
+    .nav-link::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 0%;
+      height: 2px;
+      background: #2563eb;
+      transition: width 0.25s ease;
+    }
+
+    .nav-link:hover::after,
+    .nav-link.active::after {
+      width: 100%;
+    }
+
+    .nav-link.active {
+      color: #2563eb;
+      font-weight: 600;
+    }
+  </style>
+</head>
+
+<body class="bg-[#fcfdff] text-slate-800">
+
+<!-- NAVBAR -->
+<nav class="flex items-center justify-between px-6 py-4 lg:px-20 bg-white/80 backdrop-blur border-b sticky top-0 z-50">
+  <a href="main.html" class="flex items-center gap-2 text-2xl font-bold italic">
+    <span class="text-blue-600">Algo</span><span>Edge</span>
+  </a>
+
+  <div class="hidden md:flex gap-8 text-sm text-slate-600">
+    <a href="main.html" class="nav-link">Home</a>
+    <a href="about-us.html" class="nav-link active">About Us</a>
+    <a href="strategies.html" class="nav-link">Strategies</a>
+    <a href="contact-us.html" class="nav-link">Contact Us</a>
+    <a href="index.html" class="text-red-500 font-bold">Admin</a>
+  </div>
+
+  <a href="client-login.html" class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg font-semibold">
+    Login
+  </a>
+</nav>
+
+<!-- HERO -->
+<section class="max-w-7xl mx-auto px-6 py-24 grid md:grid-cols-2 gap-16 items-center">
+  <div>
+    <span class="text-blue-600 text-xs font-bold tracking-widest uppercase">About AlgoEdge</span>
+    <h1 class="text-4xl md:text-5xl font-extrabold mt-4 leading-tight">
+      Building Intelligent <span class="text-blue-600">Algorithmic Trading</span> Solutions
+    </h1>
+    <p class="mt-6 text-slate-600 text-lg">
+      <i>AlgoEdge is a next-generation algorithmic trading platform designed to help traders
+      achieve consistency, discipline, and scalable profits through data-driven strategies.</i>
+    </p>
+    <a href="contact-us.html" class="inline-block mt-8 bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl font-semibold shadow-lg">
+      Talk to Our Experts
+    </a>
+  </div>
+
+  <img src="https://fjwp.s3.amazonaws.com/blog/wp-content/uploads/2016/06/30115150/How-to-Talk-About-Your-Expertise-When-You-Don%E2%80%99t-Think-You-Have-One.jpg"
+       alt="Trading Illustration"
+       class="w-full max-w-lg mx-auto">
+</section>
+
+<!-- WHO WE ARE -->
+<section class="bg-white py-24">
+  <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
+    <img src="https://img.freepik.com/premium-photo/businesspeople-video-conference-call-with-big-wall-tv-office-meeting-room-diverse-team-cre_1204486-594.jpg" class="rounded-3xl shadow-lg" alt="Teamwork illustration">
+    <div>
+      <h2 class="text-3xl font-bold mb-4">Who We Are</h2>
+      <p class="text-slate-600 leading-relaxed">
+        <i> We are a team of quantitative analysts, traders, and engineers with deep expertise
+        in Indian financial markets. Our mission is to democratize algorithmic trading
+        by providing institutional-grade strategies to retail and professional traders.</i>
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- WHY ALG OEDGE -->
+<section class="py-24">
+  <div class="max-w-7xl mx-auto px-6 text-center">
+    <h2 class="text-3xl md:text-4xl font-extrabold mb-12">Why Choose AlgoEdge?</h2>
+
+    <div class="grid md:grid-cols-3 gap-10">
+      <div class="bg-white p-8 rounded-3xl shadow hover:shadow-xl transition">
+        <a href="strategies.html" taret="_blank" class="font-bold text-lg mb-2">Verified Strategies </a>
+        <p class="text-slate-600">Back-tested & live-market proven models.</p>
+      </div>
+      <div class="bg-white p-8 rounded-3xl shadow hover:shadow-xl transition">
+        <a href="strategies.html" target="_blank" class="font-bold text-lg mb-2">Risk-First Approach</a>
+        <p class="text-slate-600">Capital protection is always our priority.</p>
+      </div>
+      <div class="bg-white p-8 rounded-3xl shadow hover:shadow-xl transition">
+        <a href="strategies.html" target="_blank" class="font-bold text-lg mb-2">Automation & Discipline</a>
+        <p class="text-slate-600">Emotion-free execution, every single trade.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDER -->
+<section class="bg-gradient-to-br from-blue-50 to-white py-24">
+  <div class="max-w-5xl mx-auto px-6 text-center">
+    <h2 class="text-3xl font-bold mb-8">Our Trading Ecosystem</h2>
+
+    <div class="relative overflow-hidden rounded-3xl shadow-xl">
+      <div id="slider" class="flex transition-transform duration-700">
+        <img src="https://dummyimage.com/1200x500/2563eb/ffffff&text=Strategy+Dashboard" class="w-full" alt="Strategy Dashboard">
+        <img src="https://dummyimage.com/1200x500/1e40af/ffffff&text=Risk+Management" class="w-full" alt="Risk Management">
+        <img src="https://dummyimage.com/1200x500/0284c7/ffffff&text=Live+Execution" class="w-full" alt="Live Execution">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="py-24 text-center">
+  <h2 class="text-4xl font-extrabold mb-6">Ready to Trade Smarter?</h2>
+  <p class="text-slate-600 mb-8">Join AlgoEdge and experience professional-grade trading.</p>
+  <a href="contact-us.html" class="bg-orange-500 hover:bg-orange-600 text-white px-10 py-4 rounded-xl font-bold shadow-lg">
+    Get Started Today
+  </a>
+</section>
+
+<footer class="border-t py-10 text-center text-slate-400 text-sm">
+  © 2024 AlgoEdge. All Rights Reserved.
+</footer>
+
+<!-- ACTIVE NAV SCRIPT -->
+<script>
+  const path = location.pathname.split("/").pop();
+  document.querySelectorAll(".nav-link").forEach(link => {
+    if (link.getAttribute("href") === path) {
+      link.classList.add("active");
+    }
+  });
+
+  // Slider
+  let index = 0;
+  const slider = document.getElementById("slider");
+  setInterval(() => {
+    index = (index + 1) % 3;
+    slider.style.transform = `translateX(-${index * 100}%)`;
+  }, 3000);
+</script>
+
+</body>
+</html>

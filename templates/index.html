@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Trading Bot Control Panel</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: { '700': '#1a2a4c', '800': '#131f3a', '900': '#0d152a' },
+            indigo: { 500: '#3b5998', 600: '#30497c', 700: '#25385e' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Basic fonts + small visuals */
+    body { font-family: 'Inter', sans-serif; }
+    .log-panel::-webkit-scrollbar { width: 6px; }
+    .log-panel::-webkit-scrollbar-track { background: #111827; }
+    .log-panel::-webkit-scrollbar-thumb { background-color: #4b5563; border-radius: 20px; }
+
+    #message-box { transition: opacity 0.3s ease, transform 0.3s ease; }
+    
+    /* Log Levels */
+    .log-level-INFO { color: #60a5fa; }
+    .log-level-DEBUG { color: #9ca3af; }
+    .log-level-SUCCESS { color: #4ade80; }
+    .log-level-ERROR { color: #f87171; }
+    .log-level-WARN { color: #facc15; }
+    .log-level-TRADE { color: #c084fc; }
+    
+    /* Status Labels */
+    .status-Running { color: #4ade80; font-weight: 600; }
+    .status-Stopped { color: #9ca3af; font-weight: 600; }
+    .status-Error { color: #f87171; font-weight: 600; }
+    .status-Unknown { color: #facc15; font-weight: 600; }
+
+    /* Toggle (pure CSS, no Tailwind @apply) */
+    .toggle-switch { position: relative; display: inline-block; width: 56px; height: 32px; cursor: pointer; }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; position: absolute; }
+    .slider { position: absolute; inset: 0; background: #ccc; border-radius: 999px; transition: all 200ms ease; }
+    .slider::before { content: ''; position: absolute; height: 24px; width: 24px; left: 4px; bottom: 4px; background: white; border-radius: 50%; box-shadow: 0 2px 6px rgba(2,6,23,0.2); transition: transform 200ms ease; }
+    .toggle-switch input:checked + .slider { background-color: #10B981; }
+    .toggle-switch input:checked + .slider::before { transform: translateX(24px); }
+
+    .loading-overlay { position: absolute; inset: 0; background: rgba(255,255,255,0.85); display: flex; align-items: center; justify-content: center; border-radius: 12px; z-index: 10; }
+
+    /* Small responsive tweak to keep things centered on smaller screens */
+    @media (max-width: 900px) {
+      body { padding: 18px; }
+    }
+  </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+
+  <div id="message-box" class="fixed top-5 right-5 bg-red-500 text-white py-2 px-4 rounded-lg shadow-xl opacity-0 -translate-y-5 z-50" aria-live="polite">
+    <span id="message-text"></span>
+  </div>
+
+  <div id="login-container" class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md">
+    <h2 class="text-3xl font-extrabold text-center text-indigo-700 mb-8">Trading Bot Admin</h2>
+    <form id="login-form" class="space-y-6" autocomplete="off">
+      <div>
+        <label for="admin-username" class="block text-sm font-medium text-gray-700">Username</label>
+        <input type="text" id="admin-username" class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150" required>
+      </div>
+      <div>
+        <label for="admin-password" class="block text-sm font-medium text-gray-700">Password</label>
+        <input type="password" id="admin-password" class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150" required>
+      </div>
+      <button type="submit" id="login-button" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-md text-base font-semibold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none transition duration-150">
+         Login
+      </button>
+    </form>
+  </div>
+
+  <div id="control-panel-container" class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-6xl hidden space-y-8">
+    
+    <div class="flex justify-between items-center pb-4 border-b border-gray-200">
+      <h1 class="text-3xl font-extrabold text-indigo-700">Dashboard Control</h1>
+      <button id="logout-button" class="text-sm font-medium text-red-600 hover:text-red-800 transition duration-150 py-2 px-3 rounded-md border border-transparent hover:border-red-200">
+        Logout
+      </button>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+      <div class="lg:col-span-2 space-y-6">
+
+        <div class="bg-indigo-50 p-6 rounded-xl shadow-lg border border-indigo-200 relative">
+          <h3 class="text-xl font-bold text-indigo-800 mb-4 flex items-center">
+            🌍 Global Trade Status
+          </h3>
+
+          <div id="global-trade-loading-overlay" class="loading-overlay hidden">
+            <div class="text-indigo-600 font-semibold flex items-center space-x-2">
+              <svg class="animate-spin h-5 w-5 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <span>Updating Global State...</span>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between space-x-4">
+            <span id="global-status" class="text-lg font-bold text-gray-700 self-center">Loading status...</span>
+            <label class="toggle-switch" title="Toggle global trading for all users">
+              <input type="checkbox" id="global-toggle" aria-label="Toggle global trading for all users" />
+              <span class="slider" aria-hidden="true"></span>
+            </label>
+          </div>
+        </div>
+        
+        <div class="bg-gray-50 p-6 rounded-xl shadow-md border border-gray-200">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-semibold text-gray-800">⚡ Signal Generator</h3>
+            <span id="signal-gen-status" class="text-sm font-medium text-gray-600">State: Unknown</span>
+          </div>
+          <div class="flex space-x-4">
+            <button id="start-button" class="flex-1 py-2 px-4 rounded-lg shadow-lg text-sm font-bold text-white bg-green-600 hover:bg-green-700 transition duration-150">
+              ▶ Start Signal Gen
+            </button>
+            <button id="stop-button" class="flex-1 py-2 px-4 rounded-lg shadow-lg text-sm font-bold text-white bg-red-600 hover:bg-red-700 transition duration-150">
+              ◼ Stop Signal Gen
+            </button>
+          </div>
+        </div>
+
+        <div class="bg-gray-50 p-6 rounded-xl shadow-md border border-gray-200">
+          <h3 class="text-xl font-semibold text-gray-800 mb-4">➕ Add New User</h3>
+          <form id="add-user-form" class="space-y-4" autocomplete="off">
+            
+            <fieldset class="p-4 border border-gray-300 rounded-lg space-y-3">
+              <legend class="text-sm font-medium text-gray-600 px-2">Client's API Credentials</legend>
+              <input type="text" id="new-client-id" placeholder="Client ID" class="block w-full px-3 py-2 border rounded-lg shadow-sm" required>
+              <input type="text" id="new-api-key" placeholder="API Key" class="block w-full px-3 py-2 border rounded-lg shadow-sm" required>
+              <input type="password" id="new-password" placeholder="API Password / Pin" class="block w-full px-3 py-2 border rounded-lg shadow-sm" required>
+              <input type="text" id="new-totp-secret" placeholder="TOTP Secret" class="block w-full px-3 py-2 border rounded-lg shadow-sm" required>
+            </fieldset>
+
+            <fieldset class="p-4 border border-gray-300 rounded-lg space-y-3">
+              <legend class="text-sm font-medium text-gray-600 px-2">Client's User Login</legend>
+              <input type="text" id="user-login-id" placeholder="User Login ID (Username)" class="block w-full px-3 py-2 border rounded-lg shadow-sm" required>
+              <input type="password" id="user-login-password" placeholder="User Login Password" class="block w-full px-3 py-2 border rounded-lg shadow-sm" required>
+            </fieldset>
+
+            <button type="submit" class="w-full py-2.5 px-4 rounded-lg text-white font-medium bg-indigo-600 hover:bg-indigo-700 transition duration-150 shadow-md">
+              Submit User Credentials
+            </button>
+          </form>
+        </div>
+
+        <div class="bg-gray-50 p-6 rounded-xl shadow-md border border-gray-200">
+          <h3 class="text-xl font-semibold text-gray-800 mb-4">🔐 Admin Security</h3>
+          <form id="reset-password-form" class="space-y-3" autocomplete="off">
+            <input type="password" id="reset-old-password" placeholder="Current Admin Password" class="w-full px-3 py-2 border rounded-lg shadow-sm" required>
+            <input type="password" id="reset-new-password" placeholder="New Admin Password" class="w-full px-3 py-2 border rounded-lg shadow-sm" required>
+            <button type="submit" class="w-full py-2.5 px-4 rounded-lg text-white font-medium bg-gray-600 hover:bg-gray-700 transition duration-150 shadow-md">
+              Reset Admin Password
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <div class="lg:col-span-1">
+        <h3 class="text-xl font-semibold text-gray-800 mb-3">Live Log Stream</h3>
+        <div id="log-panel" class="bg-gray-900 text-gray-200 font-mono text-xs rounded-xl shadow-lg p-4 h-[500px] overflow-y-auto log-panel">
+          <div class="text-gray-500">Waiting for backend connection...</div>
+        </div>
+      </div>
+    </div>
+    
+    <div id="csv-manager" class="bg-white p-6 rounded-xl shadow-2xl border border-gray-200 hidden">
+      <h3 class="text-2xl font-bold text-indigo-700 mb-4 flex items-center">
+        📂 Astro CSV Manager
+      </h3>
+
+      <div class="mb-6 flex items-center space-x-4">
+        <input type="file" id="astro-csv-input" accept=".csv" class="hidden" aria-label="Upload ASTRO CSV file">
+        <button id="csv-upload-btn" class="py-2.5 px-6 rounded-lg text-white font-medium bg-indigo-600 hover:bg-indigo-700 shadow-lg transition duration-150">
+          📤 Upload New ASTRO CSV
+        </button>
+        <span id="csv-upload-status" class="text-sm text-gray-600"></span>
+      </div>
+
+      <h4 class="font-semibold text-gray-700 mb-3 text-lg border-b pb-2">📜 Uploaded CSV History</h4>
+
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200 border rounded-lg">
+          <thead class="bg-gray-100">
+            <tr>
+              <th class="py-3 px-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r">File Name</th>
+              <th class="py-3 px-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r">Uploaded At</th>
+              <th class="py-3 px-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r">Valid</th>
+              <th class="py-3 px-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="csv-history-table" class="divide-y divide-gray-100"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="pt-4 flex items-center justify-between">
+  
+  <h2 class="text-2xl font-bold text-indigo-700 mb-4">
+    👥 User Management
+  </h2>
+
+ 
+  <div class="pt-5 flex items-center space-x-4">
+    <h2 class="text-2xl font-bold text-indigo-700 mb-4">
+      ❌ Exit-All Active User's Trade
+    </h2>
+
+  
+   <button
+    id="exitAllBtn"
+    class="px-4 py-2 rounded-md bg-green-600 text-white font-semibold hover:bg-green-700 transition"
+    >
+     Activate
+    </button>
+    </div>
+    </div>
+   
+
+
+      <div class="overflow-x-auto bg-white rounded-xl shadow-lg border border-gray-200">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Client ID</th>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Username</th>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+
+          <tbody id="user-table-body" class="bg-white divide-y divide-gray-100"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div id="edit-user-modal" class="fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center hidden z-50">
+    <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-lg transform transition-all duration-300 scale-100">
+      <h3 class="text-2xl font-bold text-indigo-700 mb-6">✏️ Edit User Credentials</h3>
+      <form id="edit-credentials-form" class="space-y-5" autocomplete="off">
+        <div>
+          <label for="edit-read-only-client-id" class="block text-sm font-medium text-gray-700">Client ID (Read Only)</label>
+          <input type="text" id="edit-read-only-client-id" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 shadow-sm" readonly>
+          <input type="hidden" id="edit-primary-client-id">
+        </div>
+        <div>
+          <label for="edit-user-login-id" class="block text-sm font-medium text-gray-700">User Login ID (Username)</label>
+          <input type="text" id="edit-user-login-id" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500" required>
+        </div>
+        <div>
+          <label for="edit-user-login-password" class="block text-sm font-medium text-gray-700">
+  User Login Password
+</label>
+<div class="relative mt-1">
+  <input type="password" id="edit-user-login-password"
+    class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500" required>
+  <button type="button" id="togglePassword"
+    class="absolute inset-y-0 right-0 px-3 flex items-center text-gray-500 focus:outline-none" title="Toggle password visibility">
+    <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+      viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+    </svg>
+  </button>
+</div>
+
+
+<script>
+  const passwordInput = document.getElementById("edit-user-login-password");
+  const togglePassword = document.getElementById("togglePassword");
+  const eyeIcon = document.getElementById("eyeIcon");
+
+  togglePassword.addEventListener("click", () => {
+    const isPassword = passwordInput.type === "password";
+    passwordInput.type = isPassword ? "text" : "password";
+
+    // Optional: toggle icon style (open/closed eye)
+    eyeIcon.setAttribute("stroke", isPassword ? "blue" : "currentColor");
+  });
+</script>
+        <div class="flex justify-end space-x-3 pt-4">
+          <button type="button" id="edit-cancel" class="py-2 px-5 rounded-lg text-gray-700 font-medium bg-gray-200 hover:bg-gray-300 transition duration-150">Cancel</button>
+          <button type="submit" class="py-2 px-5 rounded-lg text-white font-medium bg-indigo-600 hover:bg-indigo-700 shadow-md transition duration-150">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <script>
+    window.onerror = function(msg, url, line, col, error) {
+    alert("JS Error: " + msg + " @ " + line + ":" + col);
+};
+  </script>
+  <script>
+  (function () {
+    'use strict';
+
+    /* -------------------
+      CONFIG & HELPERS
+    -------------------- */
+    const API_BASE_URL = "http://127.0.0.1:9000";
+    const ADMIN_API_BASE = `${API_BASE_URL}/admin`;
+    const MAX_LOG_LINES = 800;
+    
+
+    const $ = (id) => document.getElementById(id);
+
+    function getAdminToken() {
+      return localStorage.getItem("admin_token") || "";
+    }
+
+    function showMessage(msg, isError = true, time = 3500) {
+      const box = $('message-box');
+      const text = $('message-text');
+      text.textContent = msg;
+      box.className = "fixed top-5 right-5 text-white py-2 px-4 rounded-lg shadow-xl z-50 " + (isError ? "bg-red-500" : "bg-green-500");
+      box.style.opacity = "1";
+      box.style.transform = "translateY(0)";
+      clearTimeout(box._hideTimeout);
+      box._hideTimeout = setTimeout(() => {
+        box.style.opacity = "0";
+        box.style.transform = "translateY(-20px)";
+      }, time);
+    }
+
+    function safeJSONParse(raw) {
+      try { return JSON.parse(raw); } catch { return null; }
+    }
+
+    /* -------------------
+      FETCH WRAPPER (timeout + consistent errors)
+    -------------------- */
+    async function apiCall(endpoint, method = "POST", body = null, useAdmin = false, timeout = 10000) {
+      const base = (useAdmin ? ADMIN_API_BASE : API_BASE_URL);
+      const url = endpoint.startsWith('/admin') ? API_BASE_URL + endpoint : base + endpoint;
+      const token = getAdminToken();
+
+      const headers = { Accept: "application/json" };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+      if (body) headers["Content-Type"] = "application/json";
+
+      const controller = new AbortController();
+      const id = setTimeout(() => controller.abort(), timeout);
+
+      try {
+        const resp = await fetch(url, { method, headers, body: body ? JSON.stringify(body) : null, signal: controller.signal });
+        clearTimeout(id);
+        const txt = await resp.text();
+        const data = safeJSONParse(txt);
+
+        if (resp.status === 401) { logout(); throw new Error("Session expired. Login again."); }
+        if (!resp.ok) { throw new Error((data && (data.message || data.error || data.msg)) || `HTTP ${resp.status}`); }
+        return data;
+      } catch (err) {
+        if (err.name === 'AbortError') {
+          showMessage("Request timed out", true);
+        } else {
+          showMessage(err.message || "Network error", true);
+        }
+        return null;
+      }
+    }
+
+    /* -------------------
+      LOG STREAM (SSE)
+    -------------------- */
+    let eventSource = null;
+    let backoffMs = 1000;
+    let logBuffer = [];
+    let logFlushTimer = null;
+
+    function appendLog(msg) {
+      const panel = $('log-panel');
+      logBuffer.push(msg);
+
+      if (logBuffer.length > 100) {
+        if (!logFlushTimer) logFlushTimer = setTimeout(flushLogBuffer, 150);
+      } else {
+        flushLogBuffer();
+      }
+    }
+
+    function flushLogBuffer() {
+      const panel = $('log-panel');
+      const fragment = document.createDocumentFragment();
+
+      logBuffer.forEach(item => {
+        const div = document.createElement('div');
+        const levelMatch = ('' + item).match(/\[(INFO|DEBUG|SUCCESS|ERROR|WARN|TRADE)\]/);
+        if (levelMatch) div.classList.add(`log-level-${levelMatch[1]}`);
+        else div.classList.add('text-gray-200');
+        div.innerText = item;
+        fragment.appendChild(div);
+      });
+
+      while (panel.children.length + logBuffer.length > MAX_LOG_LINES) {
+        panel.removeChild(panel.firstChild);
+      }
+
+      panel.appendChild(fragment);
+      panel.scrollTop = panel.scrollHeight;
+
+      logBuffer = [];
+      if (logFlushTimer) { clearTimeout(logFlushTimer); logFlushTimer = null; }
+    }
+
+    function connectToLogStream() {
+      const token = getAdminToken();
+      if (!token) return;
+
+      if (eventSource) {
+        try { eventSource.close(); } catch (e) {}
+        eventSource = null;
+      }
+
+      const url = `${API_BASE_URL}/stream?token=${encodeURIComponent(token)}`;
+      try {
+        eventSource = new EventSource(url);
+      } catch (e) {
+        showMessage("Failed to connect to log stream", true);
+        scheduleReconnect();
+        return;
+      }
+
+      eventSource.onopen = () => {
+        backoffMs = 1000;
+        $('log-panel').innerHTML = '';
+        appendLog("[SYSTEM] Connected to log stream");
+      };
+
+      eventSource.onmessage = (e) => {
+        let payload = e.data;
+        try {
+          const parsed = JSON.parse(e.data);
+          if (parsed && parsed.log) payload = parsed.log;
+        } catch (err) { }
+        appendLog(payload);
+      };
+
+      eventSource.onerror = () => {
+        appendLog("[ERROR] SSE disconnected — reconnecting...");
+        try { eventSource.close(); } catch (e) {}
+        eventSource = null;
+        scheduleReconnect();
+      };
+    }
+
+    function scheduleReconnect() {
+      setTimeout(() => {
+        connectToLogStream();
+        backoffMs = Math.min(backoffMs * 1.8, 30000);
+      }, backoffMs);
+    }
+
+    /* -------------------
+      AUTH / LOGIN
+    -------------------- */
+    async function handleLogin(e) {
+      e.preventDefault();
+      const username = $('admin-username').value.trim();
+      const password = $('admin-password').value;
+
+      if (!username || !password) { showMessage('Provide username & password', true); return; }
+
+      const resp = await fetch(`${API_BASE_URL}/admin_login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password })
+      });
+
+      const text = await resp.text();
+      const data = safeJSONParse(text);
+
+      if (!resp.ok) {
+        showMessage(data?.message || "Login failed", true);
+        return;
+      }
+
+      localStorage.setItem("admin_token", data.token);
+      showLoggedInUI();
+      showMessage("Login success", false);
+      connectToLogStream();
+      refreshUserTable();
+      loadCSVHistory();
+      updateGlobalTradeStatus();
+    }
+
+    function showLoggedInUI() {
+      $('login-container').classList.add('hidden');
+      $('control-panel-container').classList.remove('hidden');
+      $('csv-manager').classList.remove('hidden');
+    }
+
+    function logout() {
+      localStorage.removeItem('admin_token');
+      if (eventSource) try { eventSource.close(); } catch (e) {}
+      eventSource = null;
+      location.reload();
+    }
+
+    /* -------------------
+      USERS: list / add / actions
+    -------------------- */
+    async function refreshUserTable() {
+      const data = await apiCall("/get_users", "GET", null);
+      const tbody = $('user-table-body');
+      tbody.innerHTML = '';
+
+      if (!data || !data.users) {
+        tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-4 text-center text-gray-500">No Users Found</td></tr>`;
+        return;
+      }
+
+      const fragment = document.createDocumentFragment();
+
+      Object.entries(data.users).forEach(([cid, user]) => {
+        const tr = document.createElement('tr');
+
+        const name = user.user_login_id || '—';
+        const status = user.status || 'Stopped';
+        const statusClass = status === 'Running' ? 'bg-green-500' : status === 'Error' ? 'bg-red-500' : 'bg-gray-400';
+
+        tr.innerHTML = `
+          <td class="px-6 py-4 whitespace-nowrap flex items-center">
+            <span class="inline-block h-2 w-2 rounded-full ${statusClass} mr-2" title="Status: ${status}"></span>
+            ${cid}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">${name}</td>
+          <td class="px-6 py-4 whitespace-nowrap"><span class="status-${status}">${status}</span></td>
+          <td class="px-6 py-4 whitespace-nowrap space-x-2"></td>
+        `;
+
+        const actionsTd = tr.querySelector('td:last-child');
+
+        // Edit button
+        const editBtn = document.createElement('button');
+        editBtn.className = "py-1 px-3 bg-blue-500 text-white text-xs rounded-lg shadow-sm hover:bg-blue-600 transition duration-150";
+        editBtn.textContent = "Edit";
+        editBtn.addEventListener('click', () => openEditModal(cid, user));
+        actionsTd.appendChild(editBtn);
+
+        // Start button
+        const startBtn = document.createElement('button');
+        startBtn.className = "py-1 px-3 bg-green-500 text-white text-xs rounded-lg shadow-sm hover:bg-green-600 ml-2 transition duration-150";
+        startBtn.textContent = "Start";
+        startBtn.disabled = (status === "Running");
+        startBtn.addEventListener('click', () => handleUserAction('start_user', cid));
+        actionsTd.appendChild(startBtn);
+
+        // Stop button
+        const stopBtn = document.createElement('button');
+        stopBtn.className = "py-1 px-3 bg-red-500 text-white text-xs rounded-lg shadow-sm hover:bg-red-600 ml-2 transition duration-150";
+        stopBtn.textContent = "Stop";
+        stopBtn.disabled = (status !== "Running");
+        stopBtn.addEventListener('click', () => handleUserAction('stop_user', cid));
+        actionsTd.appendChild(stopBtn);
+
+        // Remove button
+        const removeBtn = document.createElement('button');
+        removeBtn.className = "py-1 px-3 bg-gray-500 text-white text-xs rounded-lg shadow-sm hover:bg-gray-600 ml-2 transition duration-150";
+        removeBtn.textContent = "Remove";
+        removeBtn.disabled = (status === "Running");
+        removeBtn.addEventListener('click', () => {
+          if (!confirm("Are you sure you want to remove this user? This cannot be undone.")) return;
+          handleUserAction('remove_user', cid);
+        });
+        actionsTd.appendChild(removeBtn);
+
+        fragment.appendChild(tr);
+      });
+
+      tbody.appendChild(fragment);
+    }
+
+    function openEditModal(clientId, userObj) {
+      $('edit-read-only-client-id').value = clientId;
+      $('edit-primary-client-id').value = clientId;
+      $('edit-user-login-id').value = userObj.user_login_id || '';
+      $('edit-user-login-password').value = userObj.user_login_password || '';
+      $('edit-user-modal').classList.remove('hidden');
+    }
+
+    async function handleUserAction(action, clientId) {
+      const data = await apiCall(`/${action}`, "POST", { client_id: clientId });
+      if (data && data.success) {
+        showMessage("User action successful", false);
+        refreshUserTable();
+      }
+    }
+
+    /* Add user */
+    async function handleAddUser(e) {
+      e.preventDefault();
+      const payload = {
+        client_id: $('new-client-id').value,
+        api_key: $('new-api-key').value,
+        password: $('new-password').value,
+        totp_secret: $('new-totp-secret').value,
+        user_login_id: $('user-login-id').value,
+        user_login_password: $('user-login-password').value
+      };
+      const data = await apiCall("/add_user", "POST", payload);
+      if (data && data.success) {
+        showMessage("User Added!", false);
+        e.target.reset();
+        refreshUserTable();
+      }
+    }
+
+    /* Edit save */
+    async function handleEditSave(e) {
+      e.preventDefault();
+      const clientId = $('edit-primary-client-id').value;
+      const payload = {
+        client_id: clientId,
+        user_login_id: $('edit-user-login-id').value,
+        user_login_password: $('edit-user-login-password').value
+      };
+      const data = await apiCall("/add_user", "POST", payload); 
+      if (data && data.success) {
+        showMessage("User updated successfully!", false);
+        $('edit-user-modal').classList.add('hidden');
+        refreshUserTable();
+      }
+    }
+    
+    /* Admin Password Reset */
+    async function handleResetPassword(e) {
+      e.preventDefault();
+      const old_password = $('reset-old-password').value;
+      const new_password = $('reset-new-password').value;
+
+      if (!confirm("Are you sure you want to change the Admin password? This will require you to log back in.")) return;
+
+      const data = await apiCall("/admin/reset_password", "POST", { 
+        old_password, 
+        new_password 
+      });
+
+      if (data && data.success) {
+        showMessage("Admin Password Reset Successfully! Please log in with the new password.", false, 6000);
+        e.target.reset();
+        logout();
+      }
+    }
+
+   /* -------------------
+   CSV MANAGEMENT 
+-------------------- */
+
+async function loadCSVHistory() {
+    const tbody = $('csv-history-table');
+    tbody.innerHTML = `
+        <tr>
+            <td colspan="4" class="text-center py-4 text-gray-500">
+                Loading...
+            </td>
+        </tr>`;
+
+    const data = await apiCall("/astro_uploads", "GET", null, true);
+
+    if (!data || !data.success) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="4" class="text-center py-4 text-red-500">
+                    Failed to load upload history.
+                </td>
+            </tr>`;
+        return;
+    }
+
+    const frag = document.createDocumentFragment();
+
+    data.uploads.forEach(u => {
+        const isActive = u.filename === data.active_file;
+
+        const tr = document.createElement("tr");
+        tr.className = isActive ? "bg-green-50" : "";
+
+        tr.innerHTML = `
+            <td class="px-4 py-2">${u.filename}</td>
+            <td class="px-4 py-2 text-sm">${u.uploaded_at}</td>
+            <td class="px-4 py-2">
+                <span class="${u.valid ? "text-green-600" : "text-red-600"} font-semibold">
+                    ${u.valid ? "Valid ✔" : "Invalid ✖"}
+                </span>
+                ${isActive ? `
+                    <span class="ml-2 px-2 py-0.5 bg-green-200 text-green-700 text-xs rounded-full font-semibold">
+                        ACTIVE
+                    </span>` 
+                : ""}
+            </td>
+            <td class="px-4 py-2 space-x-2"></td>
+        `;
+
+        const actionsTd = tr.children[3];
+
+        // Activate Button
+        const activateBtn = document.createElement("button");
+        activateBtn.className =
+            "bg-blue-600 text-white px-3 py-1 text-xs rounded-lg shadow-sm hover:bg-blue-700 transition";
+        activateBtn.textContent = isActive ? "Active" : "Activate";
+        activateBtn.disabled = isActive;
+
+        activateBtn.addEventListener("click", () => {
+            if (!confirm(`Activate "${u.filename}" ?`)) return;
+            apiCall("/astro_activate", "POST", { filename: u.filename }, true)
+                .then(res => {
+                    showMessage(res?.message || "CSV Activated!", false);
+                    loadCSVHistory();
+                });
+        });
+
+        actionsTd.appendChild(activateBtn);
+       // Delete Button
+const delBtn = document.createElement("button");
+delBtn.className =
+    "bg-red-600 text-white px-3 py-1 text-xs rounded-lg shadow-sm hover:bg-red-700 transition";
+delBtn.textContent = "Delete";
+
+delBtn.addEventListener("click", () => {
+    if (!confirm(`Are you sure you want to DELETE "${u.filename}" ?`)) return;
+
+    apiCall("/astro_delete", "POST", { filename: u.filename }, true)
+        .then(res => {
+            showMessage(res?.message || "Deleted", false);
+            loadCSVHistory();
+        });
+});
+
+actionsTd.appendChild(delBtn);
+        // Download Button
+        const dlBtn = document.createElement("button");
+        dlBtn.className =
+            "bg-gray-600 text-white px-3 py-1 text-xs rounded-lg shadow-sm hover:bg-gray-700 ml-2 transition";
+        dlBtn.textContent = "Download";
+        dlBtn.addEventListener("click", () =>
+            window.open(`${ADMIN_API_BASE}/astro_download/${encodeURIComponent(u.filename)}`, "_blank")
+        );
+
+        actionsTd.appendChild(dlBtn);
+
+        frag.appendChild(tr);
+    });
+
+    tbody.innerHTML = "";
+    tbody.appendChild(frag);
+}
+ 
+
+/* Upload CSV Handler */
+function attachCSVUpload() {
+    const fileInput = $('astro-csv-input');
+    const uploadBtn = $('csv-upload-btn');
+    const status = $('csv-upload-status');
+
+    uploadBtn.addEventListener("click", () => fileInput.click());
+
+    fileInput.addEventListener("change", async () => {
+        const f = fileInput.files[0];
+        if (!f) return;
+
+        status.textContent = "Uploading...";
+
+        const form = new FormData();
+        form.append("file", f);
+
+        try {
+            const token = getAdminToken();
+            const resp = await fetch(`${ADMIN_API_BASE}/upload_csv`, {
+                method: "POST",
+                headers: token ? { "Authorization": `Bearer ${token}` } : {},
+                body: form
+            });
+
+            const txt = await resp.text();
+            const data = safeJSONParse(txt);
+
+            if (!resp.ok) throw new Error(data?.message || "Upload failed");
+
+            status.textContent = "Uploaded ✔";
+            showMessage("CSV Upload Success", false);
+            loadCSVHistory();
+
+        } catch (err) {
+            status.textContent = "Upload failed ❌";
+            showMessage(err.message || "Upload error", true);
+
+        } finally {
+            fileInput.value = "";
+            setTimeout(() => status.textContent = "", 3000);
+        }
+    });
+}
+
+    /* -------------------
+      GLOBAL TRADE TOGGLE (FRONTEND LOGIC - START ALL / STOP ALL)
+    -------------------- */
+    const globalToggle = $('global-toggle');
+    const globalStatusSpan = $('global-status');
+    const globalLoadingOverlay = $('global-trade-loading-overlay');
+    let allUsers = {};  // Store user data in memory
+
+    function setGlobalIsLoading(v) {
+      if (!globalToggle) return;
+      globalToggle.disabled = v;
+      globalLoadingOverlay.classList.toggle('hidden', !v);
+    }
+
+    async function updateGlobalTradeStatus() {
+      try {
+        setGlobalIsLoading(true);
+        const data = await apiCall("/get_users", "GET", null);
+        if (data && data.users) {
+          allUsers = data.users;
+          const runningCount = Object.values(data.users).filter(u => u.status === 'Running').length;
+          const totalCount = Object.keys(data.users).length;
+          const allRunning = runningCount === totalCount && totalCount > 0;
+          
+          globalToggle.checked = allRunning;
+          if (totalCount === 0) {
+            globalStatusSpan.textContent = '⚠️ No Users Available';
+          } else if (allRunning) {
+            globalStatusSpan.textContent = `🟢 All Trades Active (${runningCount}/${totalCount})`;
+          } else if (runningCount === 0) {
+            globalStatusSpan.textContent = `🔴 All Trades Stopped (${runningCount}/${totalCount})`;
+          } else {
+            globalStatusSpan.textContent = `🟡 Mixed Status (${runningCount}/${totalCount} Running)`;
+          }
+        } else {
+          globalStatusSpan.textContent = 'Status unknown (API Error)';
+        }
+      } catch (err) {
+        globalStatusSpan.textContent = 'Could not fetch status.';
+      } finally {
+        setGlobalIsLoading(false);
+      }
+    }
+
+    async function handleGlobalToggle() {
+      const newState = globalToggle.checked;
+      setGlobalIsLoading(true);
+      
+      try {
+        // Get latest user list
+        const data = await apiCall("/get_users", "GET", null);
+        if (!data || !data.users) {
+          showMessage("Failed to fetch users", true);
+          globalToggle.checked = !newState;
+          setGlobalIsLoading(false);
+          return;
+        }
+
+        allUsers = data.users;
+        const userIds = Object.keys(allUsers);
+        
+        if (userIds.length === 0) {
+          showMessage("No users available to control", true);
+          globalToggle.checked = !newState;
+          setGlobalIsLoading(false);
+          return;
+        }
+
+        // Determine which users need action
+        const usersToControl = newState 
+          ? userIds.filter(id => allUsers[id].status !== 'Running')  // Start stopped users
+          : userIds.filter(id => allUsers[id].status === 'Running'); // Stop running users
+
+        if (usersToControl.length === 0) {
+          showMessage(newState ? "All trades already running" : "All trades already stopped", false);
+          await updateGlobalTradeStatus();
+          setGlobalIsLoading(false);
+          return;
+        }
+
+        // Frontend: Execute all start/stop actions in sequence
+        const action = newState ? 'start_user' : 'stop_user';
+        let successCount = 0;
+        let failCount = 0;
+
+        for (const userId of usersToControl) {
+          const result = await apiCall(`/${action}`, "POST", { client_id: userId });
+          if (result && result.success) {
+            successCount++;
+          } else {
+            failCount++;
+          }
+        }
+
+        // Show results
+        if (failCount === 0) {
+          showMessage(`✅ ${newState ? 'Started' : 'Stopped'} all ${successCount} trades successfully!`, false);
+        } else {
+          showMessage(`⚠️ ${successCount} succeeded, ${failCount} failed`, true);
+        }
+
+        // Refresh UI
+        await updateGlobalTradeStatus();
+        refreshUserTable();
+      } catch (err) {
+        showMessage("Error during global toggle operation", true);
+        globalToggle.checked = !newState;
+      } finally {
+        setGlobalIsLoading(false);
+      }
+    }
+
+    /* -------------------
+      START/STOP SIGNAL THREAD (UI buttons)
+    -------------------- */
+    async function startSignalGen() {
+      const startBtn = $('start-button');
+      const stopBtn = $('stop-button');
+      startBtn.disabled = true;
+      stopBtn.disabled = true;
+
+      const data = await apiCall("/start_signal_gen", "POST");
+      if (data && data.success) {
+        startBtn.disabled = true;
+        stopBtn.disabled = false;
+        $('signal-gen-status').textContent = 'State: Running 🟢';
+        showMessage("Signal generator started", false);
+      } else {
+        startBtn.disabled = false;
+        stopBtn.disabled = true;
+        showMessage("Failed to start signal generator", true);
+      }
+    }
+
+    async function stopSignalGen() {
+      const startBtn = $('start-button');
+      const stopBtn = $('stop-button');
+      startBtn.disabled = true;
+      stopBtn.disabled = true;
+
+      const data = await apiCall("/stop_signal_gen", "POST");
+      if (data && data.success) {
+        startBtn.disabled = false;
+        stopBtn.disabled = true;
+        $('signal-gen-status').textContent = 'State: Stopped 🔴';
+        showMessage("Signal generator stopped", false);
+      } else {
+        startBtn.disabled = true;
+        stopBtn.disabled = false;
+        showMessage("Failed to stop signal generator", true);
+      }
+    }
+
+    /* -------------------
+      BOOTSTRAP / EVENT BINDINGS
+    -------------------- */
+    function init() {
+      const loginForm = $('login-form');
+      if (loginForm) loginForm.addEventListener('submit', handleLogin);
+
+      const logoutBtn = $('logout-button');
+      if (logoutBtn) logoutBtn.addEventListener('click', logout);
+
+      const addUserForm = $('add-user-form');
+      if (addUserForm) addUserForm.addEventListener('submit', handleAddUser);
+
+      const editForm = $('edit-credentials-form');
+      if (editForm) editForm.addEventListener('submit', handleEditSave);
+
+      const editCancel = $('edit-cancel');
+      if (editCancel) editCancel.addEventListener('click', () => $('edit-user-modal').classList.add('hidden'));
+
+      const resetPasswordForm = $('reset-password-form');
+      if (resetPasswordForm) resetPasswordForm.addEventListener('submit', handleResetPassword);
+
+      if ($('start-button')) $('start-button').addEventListener('click', startSignalGen);
+      if ($('stop-button')) $('stop-button').addEventListener('click', stopSignalGen);
+
+      if (globalToggle) globalToggle.addEventListener('change', handleGlobalToggle);
+
+      attachCSVUpload();
+      
+      if ($('signal-gen-status')) $('signal-gen-status').textContent = 'State: Unknown';
+
+      if (getAdminToken()) {
+        showLoggedInUI();
+        connectToLogStream();
+        refreshUserTable();
+        loadCSVHistory();
+        updateGlobalTradeStatus();
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  })();
+  const exitBtn = document.getElementById("exitAllBtn");
+if (exitBtn) {
+  exitBtn.addEventListener("click", async function () {
+
+    const isActivate = this.textContent.trim() === "Activate";
+
+    // UI update
+    if (isActivate) {
+      this.textContent = "Deactivate";
+      this.classList.remove("bg-green-600", "hover:bg-green-700");
+      this.classList.add("bg-red-600", "hover:bg-red-700");
+
+      // TODO: Call API to exit all trades
+      // await apiCall("/exit_all_trades", "POST");
+
+    } else {
+      this.textContent = "Activate";
+      this.classList.remove("bg-red-600", "hover:bg-red-700");
+      this.classList.add("bg-green-600", "hover:bg-green-700");
+
+      // TODO: Reset state backend
+      // await apiCall("/reset_exit_state", "POST");
+    }
+  });
+}
+
+  </script>
+</body>
+</html>

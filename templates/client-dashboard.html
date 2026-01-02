@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Client Dashboard – Algo-Trading</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+body {
+    background-image: url("https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1400&q=80");
+    background-size: cover;
+    background-position: center;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    font-family: 'Inter', sans-serif;
+}
+.glass {
+    background: rgba(255, 255, 255, 0.15);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+.switch input:checked + .track {
+    background-color: #10b981;
+}
+.switch input:checked + .track + .thumb {
+    transform: translateX(1.6rem);
+}
+</style>
+</head>
+
+<body class="min-h-screen flex justify-center items-center p-4">
+
+<div class="glass w-full max-w-md p-6 shadow-lg text-white">
+
+    <h2 class="text-3xl font-bold text-center mb-4">⚡ Algo-Trading</h2>
+    <p class="text-center text-gray-200 mb-6">Client Dashboard</p>
+
+    <!-- Warning box -->
+    <div id="alert" class="hidden bg-red-600 bg-opacity-80 text-white p-3 rounded mb-4 text-center"></div>
+
+    <div class="space-y-6">
+
+        <div>
+            <label class="text-lg font-semibold">Lot Size</label>
+            <input id="lot-input" type="number" placeholder="Enter lot size" aria-label="Lot Size"
+                   class="w-full mt-2 px-4 py-2 rounded bg-white bg-opacity-20 outline-none text-white">
+        </div>
+
+        <div class="flex items-center justify-between">
+            <span class="text-lg font-semibold">Trade Status</span>
+
+            <label class="switch relative inline-block w-16 h-7 cursor-pointer" for="trade-toggle" title="Toggle trade status">
+                <input type="checkbox" id="trade-toggle" class="absolute opacity-0" title="Toggle trade status">
+                <span class="track absolute inset-0 bg-gray-500 rounded-full transition"></span>
+                <span class="thumb absolute bg-white w-6 h-6 rounded-full top-0.5 left-0.5 transition"></span>
+            </label>
+        </div>
+
+        <button id="save-btn"
+            class="w-full bg-blue-600 hover:bg-blue-700 transition py-3 rounded text-white text-lg font-semibold">
+            Save Settings
+        </button>
+
+        <button id="logout-btn"
+            class="w-full bg-red-600 hover:bg-red-700 transition py-3 rounded text-white font-semibold mt-2">
+            Logout
+        </button>
+
+    </div>
+
+    <p id="msg" class="text-center mt-4 text-yellow-300 font-medium"></p>
+
+</div>
+
+
+<script>
+const API_BASE_URL = "http://127.0.0.1:9000";
+const token = localStorage.getItem("client_token");
+
+function warning(msg) {
+    const box = document.getElementById("alert");
+    box.innerText = "⚠ " + msg;
+    box.classList.remove("hidden");
+}
+
+// redirect if no token
+if (!token) window.location.href = "client-login.html";
+
+document.getElementById("save-btn").addEventListener("click", async () => {
+    const lot = document.getElementById("lot-input").value;
+    const tradeOn = document.getElementById("trade-toggle").checked ? "ON" : "OFF";
+
+    try {
+        const headers = {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token
+        };
+
+        // Save LOT
+        await fetch(`${API_BASE_URL}/save_lot`, {
+            method: "POST",
+            headers,
+            body: JSON.stringify({ lot_size: lot })
+        });
+
+        // Trade toggle
+        await fetch(`${API_BASE_URL}/trade_toggle`, {
+            method: "POST",
+            headers,
+            body: JSON.stringify({ trading: tradeOn })
+        });
+
+        document.getElementById("msg").innerText = "✔ Settings Saved Successfully!";
+    }
+    catch (err) {
+        warning("Could not contact server! Check backend.");
+        console.error(err);
+    }
+});
+
+// Logout
+document.getElementById("logout-btn").addEventListener("click", () => {
+    localStorage.removeItem("client_token");
+    localStorage.removeItem("client_id");
+    window.location.href = "client-login.html";
+});
+</script>
+
+</body>
+</html>

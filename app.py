@@ -1726,6 +1726,7 @@ def login():
 @app.route("/dashboard")
 def dashboard():
     return render_template("client-dashboard.html")
+# -----------------------
 
 @app.route("/about")
 def about():
